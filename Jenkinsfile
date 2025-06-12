@@ -12,6 +12,7 @@ pipeline {
         stage('Build and Start Containers') {
             steps {
                 sh 'docker-compose down --remove-orphans'
+                sh 'docker rm -f app-mongodb gio_apim_elasticsearch gio_apim_mongodb gio_apim_gateway app-backend app-frontend gio_apim_management_api gio_apim_portal_ui'
                 sh 'docker-compose build'
                 sh 'docker-compose up -d'
             }
@@ -19,7 +20,8 @@ pipeline {
 
         stage('Health Check or Tests') {
             steps {
-                sh 'curl -f http://localhost:3000 || exit 1' // check frontend
+                sh 'curl -f http://host.docker.internal:3000 || exit 1'
+                // sh 'curl -f http://localhost:3000 || exit 1' // check frontend
                 // sh 'curl -f http://localhost:4000/api/health || exit 1' // check backend
             }
         }
