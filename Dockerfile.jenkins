@@ -4,8 +4,10 @@ USER root
 
 # Install Docker CLI
 RUN apt-get update && \
-    apt-get install -y docker.io docker-compose iputils-ping && \
-    rm -rf /var/lib/apt/lists/* && \
-    usermod -aG docker jenkins 
+    apt-get install -y docker.io docker-compose && \
+    usermod -aG docker jenkins
+
+RUN apt-get update && apt-get install -y iputils-ping && rm -rf /var/lib/apt/lists/*
 
 USER jenkins
+
