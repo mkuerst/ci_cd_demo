@@ -1,0 +1,18 @@
+{
+  "name": "Dev Guide Environment",
+  "id": "bbd8c493-443e-4a39-9654-4d7541622ed8",
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2023-01-24T05:07:39.537Z",
+  "_postman_exported_using": "Thunder Client",
+  "values": [
+    { "key": "management_host", "value": "http://localhost:8083", "enabled": true },
+    { "key": "gateway_host", "value": "http://localhost:8082", "enabled": true },
+    { "key": "management_username", "value": "admin", "enabled": true },
+    { "key": "management_password", "value": "admin", "enabled": true },
+    { "key": "api", "value": "", "enabled": true },
+    { "key": "plan", "value": "", "enabled": true },
+    { "key": "subscription", "value": "", "enabled": true },
+    { "key": "application", "value": "", "enabled": true },
+    { "key": "callback-url", "value": "", "enabled": true }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "info": {
+    "name": "Dev Guide - Todo Creation Rate Limiting",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": ""
+  },
+  "item": [
+    {
+      "name": "Create the API",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{management_host}}/management/organizations/DEFAULT/environments/DEFAULT/apis",
+          "host": ["{{management_host}}"],
+          "path": [
+            "management",
+            "organizations",
+            "DEFAULT",
+            "environments",
+            "DEFAULT",
+            "apis"
+          ]
+        },
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "options": { "raw": { "language": "json" } },
+          "raw": "{\n  \"name\": \"Dev Guide API\",\n  \"version\": \"1.0\",\n  \"description\": \"Allows the gateway to proxy requests from the frontend of the todo app to the backend\",\n  \"contextPath\": \"/todos\",\n  \"endpoint\": \"http://app-backend:3001/todos\",\n  \"gravitee\": \"2.0.0\",\n  \"flows\": [\n    {\n      \"name\": \"Rate limit on creating todos\",\n      \"path-operator\": {\n        \"path\": \"/\",\n        \"operator\": \"EQUALS\"\n      },\n      \"condition\": \"\",\n      \"consumers\": [],\n      \"methods\": [\n        \"POST\"\n      ],\n      \"pre\": [\n        {\n          \"name\": \"Rate Limit\",\n          \"description\": \"Rate limit\",\n          \"enabled\": true,\n          \"policy\": \"rate-limit\",\n          \"configuration\": {\n            \"async\": false,\n            \"addHeaders\": true,\n            \"rate\": {\n              \"periodTime\": 5,\n              \"limit\": 1,\n              \"periodTimeUnit\": \"SECONDS\",\n              \"key\": \"\"\n            }\n          }\n        }\n      ],\n      \"post\": [],\n      \"enabled\": true\n    }\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "Create a Keyless Plan",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{management_host}}/management/organizations/DEFAULT/environments/DEFAULT/apis/{{api}}/plans",
+          "host": ["{{management_host}}"],
+          "path": [
+            "management",
+            "organizations",
+            "DEFAULT",
+            "environments",
+            "DEFAULT",
+            "apis",
+            "{{api}}",
+            "plans"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "options": { "raw": { "language": "json" } },
+          "raw": "{\n    \"name\": \"Open\",\n    \"description\": \"Keyless\",\n    \"status\": \"PUBLISHED\",\n    \"characteristics\": [],\n    \"security\": \"KEY_LESS\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Start API",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{management_host}}/management/organizations/DEFAULT/environments/DEFAULT/apis/{{api}}/?action=start",
+          "query": [{ "key": "action", "value": "start" }],
+          "variable": [],
+          "host": ["{{management_host}}"],
+          "path": [
+            "management",
+            "organizations",
+            "DEFAULT",
+            "environments",
+            "DEFAULT",
+            "apis",
+            "{{api}}"
+          ]
+        }
+      }
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "{{management_username}}", "type": "string" },
+      { "key": "password", "value": "{{management_password}}", "type": "string" }
+    ]
+  }
+}

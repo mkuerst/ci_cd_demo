@@ -1,0 +1,78 @@
+{
+  "info": {
+    "name": "Dev Guide - Delete an API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": ""
+  },
+  "item": [
+    {
+      "name": "Stop the API",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{management_host}}/management/organizations/DEFAULT/environments/DEFAULT/apis/{{api}}?action=stop",
+          "query": [{ "key": "action", "value": "stop" }],
+          "variable": [],
+          "host": ["{{management_host}}"],
+          "path": [
+            "management",
+            "organizations",
+            "DEFAULT",
+            "environments",
+            "DEFAULT",
+            "apis",
+            "{{api}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Close Plan",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{management_host}}/management/organizations/DEFAULT/environments/DEFAULT/apis/{{api}}/plans/{{plan}}/_close",
+          "host": ["{{management_host}}"],
+          "path": [
+            "management",
+            "organizations",
+            "DEFAULT",
+            "environments",
+            "DEFAULT",
+            "apis",
+            "{{api}}",
+            "plans",
+            "{{plan}}",
+            "_close"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Delete API",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "{{management_host}}/management/organizations/DEFAULT/environments/DEFAULT/apis/{{api}}",
+          "host": ["{{management_host}}"],
+          "path": [
+            "management",
+            "organizations",
+            "DEFAULT",
+            "environments",
+            "DEFAULT",
+            "apis",
+            "{{api}}"
+          ]
+        }
+      }
+    }
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      { "key": "username", "value": "{{management_username}}", "type": "string" },
+      { "key": "password", "value": "{{management_password}}", "type": "string" }
+    ]
+  }
+}

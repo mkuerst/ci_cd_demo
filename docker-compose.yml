@@ -1,0 +1,168 @@
+version: '3'
+ 
+networks:
+  nw-gravitee-frontend:
+  nw-gravitee-backend:
+  nw-app-frontend:
+  nw-app-backend:
+
+volumes:
+  data-gravitee-elasticsearch:
+    driver: local
+  data-gravitee-mongo:
+    driver: local
+  data-app-mongo:
+    driver: local
+
+services:
+
+### Custom Application
+
+  app-mongodb:
+    image: mongo:${MONGODB_VERSION:-latest}
+    container_name: app-mongodb
+    restart: always
+    volumes:
+      - data-app-mongo:/data/db
+      - ./logs/app-mongodb:/var/log/mongodb
+    networks:
+      - nw-app-backend
+    ports:
+      - "27018:27017"
+
+  app-backend:
+    build: ./backend
+    container_name: app-backend
+    ports:
+      - "3001:3001"
+    networks:
+      - nw-app-backend
+    depends_on:
+      - app-mongodb
+      - gateway
+    environment:
+    - DATABASE_HOST=app-mongodb
+
+  app-frontend:
+    build: ./frontend
+    container_name: app-frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - nw-app-frontend
+    depends_on:
+      - app-backend
+
+### LOCAL API MANAGEMENT
+
+  mongodb:
+    image: mongo:${MONGODB_VERSION:-5}
+    container_name: gio_apim_mongodb
+    restart: always
+    volumes:
+      - data-gravitee-mongo:/data/db
+      - ./logs/apim-mongodb:/var/log/mongodb
+    networks:
+      - nw-gravitee-backend
+    ports:
+      - "27017:27017"
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION:-7.17.8}
+    container_name: gio_apim_elasticsearch
+    restart: always
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9200/_cat/health?h=st" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - data-gravitee-elasticsearch:/usr/share/elasticsearch/data
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=0.0.0.0
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - cluster.name=elasticsearch
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile: 65536
+    networks:
+      - nw-gravitee-backend
+
+  gateway:
+    image: graviteeio/apim-gateway:${APIM_VERSION:-latest}
+    container_name: gio_apim_gateway
+    restart: always
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mongodb
+      - elasticsearch
+    volumes:
+      - ./logs/apim-gateway:/opt/graviteeio-gateway/logs
+    environment:
+      - gravitee_api_jupiterMode_enabled=true
+      - gravitee_management_mongodb_uri=mongodb://mongodb:27017/gravitee?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
+      - gravitee_ratelimit_mongodb_uri=mongodb://mongodb:27017/gravitee?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
+      - gravitee_reporters_elasticsearch_endpoints_0=http://elasticsearch:9200
+    networks:
+      - nw-gravitee-backend
+      - nw-gravitee-frontend
+      - nw-app-backend
+
+  management_api:
+    image: graviteeio/apim-management-api:${APIM_VERSION:-latest}
+    container_name: gio_apim_management_api
+    restart: always
+    ports:
+      - "8083:8083"
+    links:
+      - mongodb
+      - elasticsearch
+    depends_on:
+      - mongodb
+      - elasticsearch
+    volumes:
+      - ./logs/apim-management-api:/opt/graviteeio-management-api/logs
+    environment:
+      - gravitee_management_mongodb_uri=mongodb://mongodb:27017/gravitee?serverSelectionTimeoutMS=5000&connectTimeoutMS=5000&socketTimeoutMS=5000
+      - gravitee_analytics_elasticsearch_endpoints_0=http://elasticsearch:9200
+    networks:
+      - nw-gravitee-backend
+      - nw-gravitee-frontend
+
+  management_ui:
+    image: graviteeio/apim-management-ui:${APIM_VERSION:-latest}
+    container_name: gio_apim_management_ui
+    restart: always
+    ports:
+      - "8084:8080"
+    depends_on:
+      - management_api
+    environment:
+      - MGMT_API_URL=http://localhost:8083/management/organizations/DEFAULT/environments/DEFAULT/
+    volumes:
+      - ./logs/apim-management-ui:/var/log/nginx
+    networks:
+      - nw-gravitee-frontend
+
+  portal_ui:
+    image: graviteeio/apim-portal-ui:${APIM_VERSION:-latest}
+    container_name: gio_apim_portal_ui
+    restart: always
+    ports:
+      - "8085:8080"
+    depends_on:
+      - management_api
+    environment:
+      - PORTAL_API_URL=http://localhost:8083/portal/environments/DEFAULT
+    volumes:
+      - ./logs/apim-portal-ui:/var/log/nginx
+    networks:
+      - nw-gravitee-frontend
