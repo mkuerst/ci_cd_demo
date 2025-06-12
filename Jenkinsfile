@@ -12,7 +12,7 @@ pipeline {
         stage('Build and Start Containers') {
             steps {
                 sh 'docker-compose down --remove-orphans'
-                sh 'docker rm -f app-mongodb gio_apim_elasticsearch gio_apim_mongodb gio_apim_gateway app-backend app-frontend gio_apim_management_api gio_apim_portal_ui || true'
+                sh 'docker rm -f app-mongodb gio_apim_elasticsearch gio_apim_mongodb gio_apim_gateway app-backend app-frontend gio_apim_management_api gio_apim_portal_ui gio_apim_management_ui || true'
                 sh 'docker-compose build'
                 sh 'docker-compose up -d'
             }
