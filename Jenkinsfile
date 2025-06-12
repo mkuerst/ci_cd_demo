@@ -18,13 +18,13 @@ pipeline {
             }
         }
 
-        // stage('Health Check or Tests') {
-        //     steps {
-        //         // sh 'curl -f http://host.docker.internal:3000'
-        //         // sh 'curl -f http://localhost:3000 || exit 1' // check frontend
-        //         // sh 'curl -f http://localhost:4000/api/health || exit 1' // check backend
-        //     }
-        // }
+        stage('Health Check or Tests') {
+            steps {
+                sh 'curl -f http://host.docker.internal:3000'
+                // sh 'curl -f http://localhost:3000 || exit 1' // check frontend
+                // sh 'curl -f http://localhost:4000/api/health || exit 1' // check backend
+            }
+        }
 
     }
 }
