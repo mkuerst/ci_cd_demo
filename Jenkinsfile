@@ -21,6 +21,7 @@ pipeline {
         stage('Health Check or Tests') {
             steps {
                 // sh 'curl -f http://host.docker.internal:3000 -v'
+                sh 'ping -c 3 host.docker.internal'
                 sh 'curl -H "Host: localhost" http://host.docker.internal:3000 -v'
 
                 // sh 'curl -f http://localhost:3000 || exit 1' // check frontend
