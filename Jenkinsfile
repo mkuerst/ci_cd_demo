@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git 'https://github.com/mkuerst/api_gateway_demo'
+                git 'https://github.com/mkuerst/ci_cd_demo'
             }
         }
 
